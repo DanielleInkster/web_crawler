@@ -28,6 +28,10 @@ class Crawler(
                             delay(siteData.pPolicy.crawlDelay)
                             val pageResults = handler.parseLinksFromPage(link, siteData.pPolicy.crawlDelay.toInt())
                             siteMap[link] = pageResults
+                            // for the purposes of this tech test so results can be seen in the CLI
+                            println(
+                                "\nUrl: $link\nUnique links found:\n • ${pageResults.joinToString("\n • ")}",
+                            )
                             if (pageResults.isEmpty()) return@async
                             val queueEntries =
                                 validateQueueEntries(siteData.rootUrl, siteData.pPolicy.disallow, pageResults)

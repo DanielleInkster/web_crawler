@@ -17,7 +17,6 @@ class CrawlerManager {
 
         logger.info("Crawling...")
         val siteMap = crawler.crawl(siteData)
-        printSiteMap(siteMap)
         return siteMap
     }
 
@@ -28,12 +27,4 @@ class CrawlerManager {
         val handler = HtmlHandler()
         return Crawler(queue, handler, concurrencyCount)
     }
-
-    // for the purposes of this tech test so results can be seen in the CLI
-     fun printSiteMap(map: MutableMap<String, Set<String>>) =
-        map.forEach { link, results ->
-            println(
-                "\nUrl: $link\nUnique links found:\n • ${results.joinToString("\n • ")}",
-            )
-        }
 }
