@@ -54,7 +54,7 @@ Ideally, write it as you would a production piece of code. This exercise is not 
       - Queue is a linkedHashSet for urls to be crawled with a secondary hashSet for urls that have been crawled.
 
 
-4. Crawler begins crawling site. The url is removed from the queue and passed to the HtmlHandler. This queries urls and returns links - link fragments and queries are removed. 
+4. Crawler begins crawling site; current thread pool is limited to 30 or the concurrency value, whichever is less. The url is removed from the queue and passed to the HtmlHandler. This queries urls and returns links - link fragments and queries are removed. 
    - Crawler uses an asynchronous coroutine to query.
    - For timeouts, HtmlHandler uses exponential backoff for retries; program will terminate after 3 failed tries and error will be logged. 
    - If the url returns an HttpStatus exception, program will terminate and error will be logged. 
