@@ -1,8 +1,6 @@
 package org.monzo.crawler.entities
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -20,11 +18,14 @@ class HtmlHandler {
     suspend fun parseLinksFromPage(
         url: String,
         delay: Int,
-    ): HashSet<String> =
-        withContext(Dispatchers.IO) {
+        scope: CoroutineScope
+    ): HashSet<String> = coroutineScope {
+        val links = scope.async {
             val doc = fetchPageAsDocument(url, delay)
             getAllAbsoluteLinks(doc).toHashSet()
         }
+        links.await()
+    }
 
     private suspend fun fetchPageAsDocument(
         url: String,

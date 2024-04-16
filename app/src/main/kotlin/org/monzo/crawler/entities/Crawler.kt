@@ -2,6 +2,7 @@ package org.monzo.crawler.entities
 
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import kotlin.math.min
 
 class Crawler(
@@ -11,6 +12,9 @@ class Crawler(
 ) {
     suspend fun crawl(siteData: SiteData): MutableMap<String, Set<String>> =
         coroutineScope {
+            //set thread pool
+            val executor = Executors.newFixedThreadPool(min(concurrencyCount, 20))
+            val dispatcher = executor.asCoroutineDispatcher()
             // Using ConcurrentHashMap for thread safety
             val siteMap = ConcurrentHashMap<String, Set<String>>()
             queue.add(siteData.seedUrl)
@@ -20,9 +24,9 @@ class Crawler(
                 repeat(min(queue.size, concurrencyCount)) {
                     val link = queue.removeFromQueue()
                     jobs.add(
-                        async(Dispatchers.IO) {
+                        async(dispatcher) {
                             delay(siteData.pPolicy.crawlDelay)
-                            val pageResults = handler.parseLinksFromPage(link, siteData.pPolicy.crawlDelay.toInt())
+                            val pageResults = handler.parseLinksFromPage(link, siteData.pPolicy.crawlDelay.toInt(), this@coroutineScope)
                             siteMap[link] = pageResults
                             if (pageResults.isEmpty()) return@async
                             val queueEntries =
@@ -35,6 +39,7 @@ class Crawler(
                 // Waiting for the batch to complete
                 jobs.awaitAll()
             }
+            executor.shutdown()
             siteMap
         }
 
