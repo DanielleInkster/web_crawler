@@ -12,9 +12,8 @@ class CrawlerManager {
     ): MutableMap<String, Set<String>> {
         val delayToLong = (delay * 1000).toLong()
         val siteData = SiteData.create(url, delayToLong)
-        val queue = CrawlerQueue()
-        val handler = HtmlHandler()
-        val crawler = Crawler(queue, handler, concurrencyCount)
+
+        val crawler = createCrawler(concurrencyCount)
 
         logger.info("Crawling...")
         val siteMap = crawler.crawl(siteData)
@@ -22,8 +21,16 @@ class CrawlerManager {
         return siteMap
     }
 
+    fun createCrawler(
+        concurrencyCount: Int
+    ):Crawler {
+        val queue = CrawlerQueue()
+        val handler = HtmlHandler()
+        return Crawler(queue, handler, concurrencyCount)
+    }
+
     // for the purposes of this tech test so results can be seen in the CLI
-    private fun printSiteMap(map: MutableMap<String, Set<String>>) =
+     fun printSiteMap(map: MutableMap<String, Set<String>>) =
         map.forEach { link, results ->
             println(
                 "\nUrl: $link\nUnique links found:\n • ${results.joinToString("\n • ")}",
