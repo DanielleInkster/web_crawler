@@ -23,7 +23,7 @@ Ideally, write it as you would a production piece of code. This exercise is not 
 
 ### Setup ###
 
- - Run `gradle build` to create JAR
+ - Run `gradle jar` to create JAR
  - Run `java -jar app.jar` in `app/build/libs`
 
 

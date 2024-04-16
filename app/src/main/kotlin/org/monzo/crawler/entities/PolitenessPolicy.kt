@@ -5,9 +5,9 @@ import java.net.URI
 import java.net.UnknownHostException
 import java.util.logging.Logger
 
-const val DEFAULT_USER_AGENT = "*"
-val DEFAULT_DISALLOWED = Disallowed(hashSetOf(), hashSetOf())
-val NO_CRAWLING = "/"
+private const val DEFAULT_USER_AGENT = "*"
+private val DEFAULT_DISALLOWED = Disallowed(hashSetOf(), hashSetOf())
+private val NO_CRAWLING = "/"
 
 data class PolitenessPolicy(
     val crawlDelay: Long,

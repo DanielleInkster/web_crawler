@@ -9,8 +9,9 @@ import java.net.http.HttpConnectTimeoutException
 import java.util.logging.Logger
 
 
-val DEFAULT_TRIES = 3
-val DEFAULT_TIMEOUT = 5
+private const val DEFAULT_TRIES = 3
+private const val DEFAULT_TIMEOUT = 5
+private val DEFAULT_USER_AGENT = "*"
 
 class HtmlHandler {
     private val logger = Logger.getLogger(HtmlHandler::class.java.name)
@@ -67,6 +68,7 @@ class HtmlHandler {
 
     private fun jsoupQuery(url: String) =
         Jsoup.connect(url)
+            .userAgent(DEFAULT_USER_AGENT)
             .ignoreContentType(true)
             .timeout(DEFAULT_TIMEOUT * 1000)
             .get()
