@@ -12,7 +12,7 @@ class Crawler(
 ) {
     suspend fun crawl(siteData: SiteData): MutableMap<String, Set<String>> =
         coroutineScope {
-            //set thread pool
+            //set thread pool size
             val executor = Executors.newFixedThreadPool(min(concurrencyCount, 30))
             val dispatcher = executor.asCoroutineDispatcher()
             // Using ConcurrentHashMap for thread safety
@@ -24,7 +24,7 @@ class Crawler(
                 repeat(min(queue.size, concurrencyCount)) {
                     val link = queue.removeFromQueue()
                     jobs.add(
-                        async(Dispatchers.IO) {
+                        async(dispatcher) {
                             delay(siteData.pPolicy.crawlDelay)
                             val pageResults = handler.parseLinksFromPage(link, siteData.pPolicy.crawlDelay.toInt())
                             siteMap[link] = pageResults
