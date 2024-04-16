@@ -58,9 +58,10 @@ Ideally, write it as you would a production piece of code. This exercise is not 
    - Crawler uses an asynchronous coroutine to query.
    - For timeouts, HtmlHandler uses exponential backoff for retries; program will terminate after 3 failed tries and error will be logged. 
    - If the url returns an HttpStatus exception, program will terminate and error will be logged. 
-   
+   - Due to the nature of this test, the results are formatted and printed to the console for visibility.
 
-5. Links returned by the HtmlHandler are stored as values in the Site Map (HashMap) with the queried url as key. 
+
+5. Links returned by the HtmlHandler are stored as values in the Site Map (HashMap) with the queried url as key.
 
 
 6. Links are filtered to internal links that are not on the disallowed list and haven't already been processed. If the links set is empty, the cycle terminates
@@ -75,7 +76,4 @@ Ideally, write it as you would a production piece of code. This exercise is not 
 9. When the queue is empty, the crawl function is terminated.
 
 
-10. The site map is returned to the CrawlerManager.
-
-
-11. Due to the nature of this test, the site map is formatted and printed to the console, including execution time. 
+10. The site map is returned to the CrawlerManager. On termination, execution time is also printed. 
