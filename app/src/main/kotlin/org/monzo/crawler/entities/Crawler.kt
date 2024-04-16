@@ -9,6 +9,7 @@ class Crawler(
     val queue: CrawlerQueue,
     val handler: HtmlHandler,
     val concurrencyCount: Int,
+    val siteMap: ConcurrentHashMap<String, Set<String>>
 ) {
     suspend fun crawl(siteData: SiteData): MutableMap<String, Set<String>> =
         coroutineScope {
@@ -16,7 +17,6 @@ class Crawler(
             val executor = Executors.newFixedThreadPool(min(concurrencyCount, 30))
             val dispatcher = executor.asCoroutineDispatcher()
             // Using ConcurrentHashMap for thread safety
-            val siteMap = ConcurrentHashMap<String, Set<String>>()
             queue.add(siteData.seedUrl)
             while (queue.isNotEmpty()) {
                 // Batching jobs

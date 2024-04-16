@@ -1,5 +1,6 @@
 package org.monzo.crawler.entities
 
+import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Logger
 
 class CrawlerManager {
@@ -25,6 +26,7 @@ class CrawlerManager {
     ):Crawler {
         val queue = CrawlerQueue()
         val handler = HtmlHandler()
-        return Crawler(queue, handler, concurrencyCount)
+        val siteMap = ConcurrentHashMap<String, Set<String>>()
+        return Crawler(queue, handler, concurrencyCount, siteMap)
     }
 }

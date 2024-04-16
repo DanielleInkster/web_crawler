@@ -66,7 +66,6 @@ class PolitenessPolicyTest {
         every { pPolicyCompanion.create(testUrl2, testUrl2, fallbackDelay) } answers { callOriginal() }
 
         val policy = pPolicyCompanion.create(testUrl2, testUrl2, fallbackDelay)
-        println(policy.disallow)
         val expectedString = "https://www.test2.com/drafts"
         val expectedRegex = "[a-zA-Z0-9_-]+\\?s=bpage-next"
         assertTrue(

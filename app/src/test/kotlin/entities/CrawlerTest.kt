@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.monzo.crawler.entities.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -18,11 +19,12 @@ class CrawlerTest {
         val url = "https://www.test.com"
         val disallowed = Disallowed(hashSetOf("https://www.test.com/5"), hashSetOf("([a-zA-Z0-9_-]+\\?=doNotQuery)".toRegex()))
         val concurrency = 5
+        val siteMap = ConcurrentHashMap<String, Set<String>>()
         val policy = mockk<PolitenessPolicy>()
 
         val handler = mockk<HtmlHandler>()
         val queue = CrawlerQueue()
-        val crawler = Crawler(queue, handler, concurrency)
+        val crawler = Crawler(queue, handler, concurrency,siteMap)
 
         val siteData = SiteData.create(url, delay, policy)
 
@@ -36,6 +38,7 @@ class CrawlerTest {
 
     @BeforeEach
     fun cleanup() {
+        siteMap.clear()
         clearMocks(
             handler,
         )
