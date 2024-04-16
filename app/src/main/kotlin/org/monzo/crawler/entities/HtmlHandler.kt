@@ -18,13 +18,11 @@ class HtmlHandler {
     suspend fun parseLinksFromPage(
         url: String,
         delay: Int,
-        scope: CoroutineScope
     ): HashSet<String> = coroutineScope {
-        val links = scope.async {
+        withContext(Dispatchers.IO) {
             val doc = fetchPageAsDocument(url, delay)
             getAllAbsoluteLinks(doc).toHashSet()
         }
-        links.await()
     }
 
     private suspend fun fetchPageAsDocument(
