@@ -1,11 +1,37 @@
+
 plugins {
     application
     kotlin("jvm") version "1.9.23"
 }
 
+
+
 repositories {
     mavenCentral()
 }
+
+application{
+    mainClass = "org.monzo.crawler"
+}
+
+tasks.withType<Jar> {
+    // Otherwise you'll get a "No main manifest attribute" error
+    manifest {
+        attributes["Main-Class"] = "org.monzo.crawler.Main"
+    }
+
+    // To avoid the duplicate handling strategy error
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // To add all of the dependencies
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+}
+
 
 dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
@@ -16,9 +42,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
 }
 
-application{
-    mainClass = "org.monzo.crawler"
-}
 
 tasks.test {
     useJUnitPlatform()
