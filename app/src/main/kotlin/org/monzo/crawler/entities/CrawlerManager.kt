@@ -1,7 +1,6 @@
 package org.monzo.crawler.entities
 
 import java.util.HashMap
-import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Logger
 
 class CrawlerManager {

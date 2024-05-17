@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.monzo.crawler.entities.*
-import java.util.concurrent.ConcurrentHashMap
+import java.util.HashMap
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -19,12 +19,12 @@ class CrawlerTest {
         val url = "https://www.test.com"
         val disallowed = Disallowed(hashSetOf("https://www.test.com/5"), hashSetOf("([a-zA-Z0-9_-]+\\?=doNotQuery)".toRegex()))
         val concurrency = 5
-        val siteMap = ConcurrentHashMap<String, Set<String>>()
+        val siteMap = HashMap<String, Set<String>>()
         val policy = mockk<PolitenessPolicy>()
 
         val handler = mockk<HtmlHandler>()
         val queue = CrawlerQueue()
-        val crawler = Crawler(queue, handler, concurrency,siteMap)
+        val crawler = Crawler()
 
         val siteData = SiteData.create(url, delay, policy)
 
@@ -39,6 +39,7 @@ class CrawlerTest {
     @BeforeEach
     fun cleanup() {
         siteMap.clear()
+        queue.clear()
         clearMocks(
             handler,
         )
@@ -59,7 +60,7 @@ class CrawlerTest {
             val dispatcher = StandardTestDispatcher(scheduler, name = "IO dispatcher")
             val results =
                 async(dispatcher) {
-                    crawler.crawl(siteData)
+                    crawler.crawl(siteData, queue, handler, concurrency, siteMap)
                 }.await()
 
             // function terminates after all links have been processed
@@ -93,7 +94,7 @@ class CrawlerTest {
             val scheduler = testScheduler
             val dispatcher = StandardTestDispatcher(scheduler, name = "IO dispatcher")
             async(dispatcher) {
-                crawler.crawl(siteData)
+                crawler.crawl(siteData, queue, handler, concurrency, siteMap)
             }.await()
 
             assertTrue { queue.isEmpty() }
@@ -115,7 +116,7 @@ class CrawlerTest {
             val dispatcher = StandardTestDispatcher(scheduler, name = "IO dispatcher")
             val results =
                 async(dispatcher) {
-                    crawler.crawl(siteData)
+                    crawler.crawl(siteData, queue, handler, concurrency, siteMap)
                 }.await()
 
             assertTrue { results.keys.count() == 2 }
@@ -143,9 +144,9 @@ class CrawlerTest {
             val dispatcher = StandardTestDispatcher(scheduler, name = "IO dispatcher")
             val results =
                 async(dispatcher) {
-                    crawler.crawl(siteData)
+                    crawler.crawl(siteData, queue, handler, concurrency, siteMap)
                 }.await()
-
+            println(results)
             assertTrue { results.keys.count() == 1 }
             assertFalse { results.containsKey("https://www.test2.com") }
             assertTrue {
