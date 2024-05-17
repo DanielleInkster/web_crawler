@@ -1,5 +1,6 @@
 package org.monzo.crawler.entities
 
+import java.util.HashMap
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Logger
 
@@ -14,19 +15,13 @@ class CrawlerManager {
         val delayToLong = (delay * 1000).toLong()
         val siteData = SiteData.create(url, delayToLong)
 
-        val crawler = createCrawler(concurrencyCount)
-
-        logger.info("Crawling...")
-        val siteMap = crawler.crawl(siteData)
-        return siteMap
-    }
-
-    fun createCrawler(
-        concurrencyCount: Int
-    ):Crawler {
+        val crawler = Crawler()
         val queue = CrawlerQueue()
         val handler = HtmlHandler()
-        val siteMap = ConcurrentHashMap<String, Set<String>>()
-        return Crawler(queue, handler, concurrencyCount, siteMap)
+        val emptySiteMap = HashMap<String, Set<String>>()
+
+        logger.info("Crawling...")
+        val siteMap = crawler.crawl(siteData, queue, handler, concurrencyCount, emptySiteMap)
+        return siteMap
     }
 }

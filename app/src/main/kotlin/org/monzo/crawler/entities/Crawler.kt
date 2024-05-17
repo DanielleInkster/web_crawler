@@ -1,21 +1,17 @@
 package org.monzo.crawler.entities
 
 import kotlinx.coroutines.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 import kotlin.math.min
 
-class Crawler(
-    val queue: CrawlerQueue,
-    val handler: HtmlHandler,
-    val concurrencyCount: Int,
-    val siteMap: ConcurrentHashMap<String, Set<String>>
-) {
-    suspend fun crawl(siteData: SiteData): MutableMap<String, Set<String>> =
+class Crawler() {
+    suspend fun crawl(
+        siteData: SiteData,
+        queue: CrawlerQueue,
+        handler: HtmlHandler,
+        concurrencyCount: Int,
+        siteMap: HashMap<String, Set<String>>
+    ): MutableMap<String, Set<String>> =
         coroutineScope {
-            //set thread pool size
-            val executor = Executors.newFixedThreadPool(min(concurrencyCount, 30))
-            val dispatcher = executor.asCoroutineDispatcher()
             // Using ConcurrentHashMap for thread safety
             queue.add(siteData.seedUrl)
             while (queue.isNotEmpty()) {
@@ -24,7 +20,7 @@ class Crawler(
                 repeat(min(queue.size, concurrencyCount)) {
                     val link = queue.removeFromQueue()
                     jobs.add(
-                        async(dispatcher) {
+                        async(Dispatchers.IO) {
                             delay(siteData.pPolicy.crawlDelay)
                             val pageResults = handler.parseLinksFromPage(link, siteData.pPolicy.crawlDelay.toInt())
                             siteMap[link] = pageResults
@@ -34,7 +30,7 @@ class Crawler(
                             )
                             if (pageResults.isEmpty()) return@async
                             val queueEntries =
-                                validateQueueEntries(siteData.rootUrl, siteData.pPolicy.disallow, pageResults)
+                                validateQueueEntries(siteData.rootUrl, siteData.pPolicy.disallow, pageResults, queue)
                             if (queueEntries.isEmpty()) return@async
                             queue.addToQueue(queueEntries)
                         },
@@ -43,7 +39,6 @@ class Crawler(
                 // Waiting for the batch to complete
                 jobs.awaitAll()
             }
-            executor.shutdown()
             siteMap
         }
 
@@ -51,6 +46,7 @@ class Crawler(
         rootUrl: String,
         disallowed: Disallowed,
         links: HashSet<String>,
+        queue: CrawlerQueue,
     ): List<String> =
         links.filterNot { link ->
             !link.startsWith(rootUrl) ||
